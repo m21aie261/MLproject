@@ -1,84 +1,35 @@
-import tensorflow as tf
-from tensorflow.keras import layers, models
+# rollback
 
-# cnn with 3 different models
+# Import the necessary modules and libraries
+import matplotlib.pyplot as plt
+import numpy as np
 
+from sklearn.tree import DecisionTreeRegressor
 
-def create_cnn_model_1(input_shape, num_classes):
-    model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Flatten(),
-        layers.Dense(128, activation='relu'),
-        layers.Dense(num_classes, activation='softmax')
-    ])
-    return model
+# Create a random dataset
+rng = np.random.RandomState(1)
+X = np.sort(5 * rng.rand(80, 1), axis=0)
+y = np.sin(X).ravel()
+y[::5] += 3 * (0.5 - rng.rand(16))
 
+# Fit regression model
+regr_1 = DecisionTreeRegressor(max_depth=2)
+regr_2 = DecisionTreeRegressor(max_depth=5)
+regr_1.fit(X, y)
+regr_2.fit(X, y)
 
-def create_cnn_model_2(input_shape, num_classes):
-    model = models.Sequential([
-        layers.Conv2D(64, (3, 3), activation='relu', input_shape=input_shape),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(128, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Flatten(),
-        layers.Dense(256, activation='relu'),
-        layers.Dropout(0.5),
-        layers.Dense(num_classes, activation='softmax')
-    ])
-    return model
+# Predict
+X_test = np.arange(0.0, 5.0, 0.01)[:, np.newaxis]
+y_1 = regr_1.predict(X_test)
+y_2 = regr_2.predict(X_test)
 
-
-def create_cnn_model_3(input_shape, num_classes):
-    model = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', input_shape=input_shape),
-        layers.Conv2D(64, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(128, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(256, (3, 3), activation='relu'),
-        layers.MaxPooling2D((2, 2)),
-        layers.Flatten(),
-        layers.Dense(512, activation='relu'),
-        layers.Dropout(0.5),
-        layers.Dense(num_classes, activation='softmax')
-    ])
-    return model
-
-
-# Define input shape and number of classes
-input_shape = (150, 150, 3)  # Example input shape for RGB images
-num_classes = 10              # Example number of classes
-
-# Create the CNN model
-model_1 = create_cnn_model_1(input_shape, num_classes)
-model_2 = create_cnn_model_2(input_shape, num_classes)
-model_3 = create_cnn_model_3(input_shape, num_classes)
-
-# Compile the model
-model_1.compile(optimizer='adam',
-                loss='sparse_categorical_crossentropy',
-                metrics=['accuracy'])
-
-# Print model summary
-model_1.summary()
-
-
-# Compile the model
-model_2.compile(optimizer='adam',
-                loss='sparse_categorical_crossentropy',
-                metrics=['accuracy'])
-
-# Print model summary
-model_2.summary()
-
-
-# Compile the model
-model_3.compile(optimizer='adam',
-                loss='sparse_categorical_crossentropy',
-                metrics=['accuracy'])
-
-# Print model summary
-model_3.summary()
+# Plot the results
+plt.figure()
+plt.scatter(X, y, s=20, edgecolor="black", c="darkorange", label="data")
+plt.plot(X_test, y_1, color="cornflowerblue", label="max_depth=2", linewidth=2)
+plt.plot(X_test, y_2, color="yellowgreen", label="max_depth=5", linewidth=2)
+plt.xlabel("data")
+plt.ylabel("target")
+plt.title("Decision Tree Regression")
+plt.legend()
+plt.show()
