@@ -7,7 +7,7 @@ import numpy as np
 from sklearn.tree import DecisionTreeRegressor
 
 # Create a random dataset
-rng = np.random.RandomState(100)
+rng = np.random.RandomState(1)
 X = np.sort(5 * rng.rand(80, 1), axis=0)
 y = np.sin(X).ravel()
 y[::5] += 3 * (0.5 - rng.rand(16))
